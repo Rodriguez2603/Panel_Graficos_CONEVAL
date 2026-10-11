@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <!-- Define la codificación para permitir caracteres como á, é, í, ó y ú -->
+    <meta charset="UTF-8">
+
+    <!-- Hace que el dashboard se adapte a diferentes tamaños de pantalla -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título que aparecerá en la pestaña del navegador -->
+    <title>Panel de pobreza en México</title>
+
+    <!-- Carga la biblioteca de Google Charts -->
+    <script type="text/javascript"
+        src="https://www.gstatic.com/charts/loader.js">
+    </script>
+
+    <style>
+        /* 
+         * Configuración general de la página.
+         * Se utiliza una fuente sencilla y se elimina el margen
+         * predeterminado del navegador.
+         */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #222;
+        }
+
+        /*
+         * Encabezado principal del dashboard.
+         */
+        .header {
+            background-color: #1f4e79;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        /*
+         * Contenedor principal donde estarán los gráficos.
+         */
+        .dashboard {
+            width: 90%;
+            max-width: 1400px;
+            margin: 30px auto;
+
+            /*
+             * CSS Grid permite organizar los gráficos
+             * en diferentes columnas y filas.
+             */
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        /*
+         * Tarjeta individual de cada gráfico.
+         */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+
+            /* Sombra para separar visualmente las tarjetas */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.10);
+        }
+
+        /*
+         * El quinto gráfico ocupará todo el ancho.
+         */
+        .card.full {
+            grid-column: 1 / -1;
+        }
+
+        /*
+         * Títulos de cada gráfico.
+         */
+        .card h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        /*
+         * Área donde Google Charts dibujará cada gráfico.
+         */
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        /*
+         * En pantallas pequeñas los gráficos
+         * se colocarán uno debajo de otro.
+         */
+        @media (max-width: 800px) {
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .card.full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Encabezado principal -->
+    <header class="header">
+
+        <h1>Panel de pobreza en México</h1>
+
+        <p>
+            Información estadística de CONEVAL, 2008-2018
+        </p>
+
+    </header>
+
+
+    <!--
+        Contenedor principal del dashboard.
+        Aquí estarán los cinco gráficos.
+    -->
+    <main class="dashboard">
+
+
+        <!-- =============================== -->
+        <!-- GRÁFICO 1 -->
+        <!-- =============================== -->
+
+        <section class="card">
+
+            <h2>
+                Evolución de la pobreza y pobreza extrema
+            </h2>
+
+            <!-- Google Charts colocará aquí el gráfico -->
+            <div id="grafico1" class="chart"></div>
+
+        </section>
+
+
+        <!-- =============================== -->
+        <!-- GRÁFICO 2 -->
+        <!-- =============================== -->
+
+        <section class="card">
+
+            <h2>
+                Carencias sociales
+            </h2>
+
+            <!-- Google Charts colocará aquí el gráfico -->
+            <div id="grafico2" class="chart"></div>
+
+        </section>
+
+
+        <!-- =============================== -->
+        <!-- GRÁFICO 3 -->
+        <!-- =============================== -->
+
+        <section class="card">
+
+            <h2>
+                Pobreza según zona de residencia
+            </h2>
+
+            <!-- Google Charts colocará aquí el gráfico -->
+            <div id="grafico3" class="chart"></div>
+
+        </section>
+
+
+        <!-- =============================== -->
+        <!-- GRÁFICO 4 -->
+        <!-- =============================== -->
+
+        <section class="card">
+
+            <h2>
+                Pobreza según condición de hablante
+                de lengua indígena
+            </h2>
+
+            <!-- Google Charts colocará aquí el gráfico -->
+            <div id="grafico4" class="chart"></div>
+
+        </section>
+
+
+        <!-- =============================== -->
+        <!-- GRÁFICO 5 -->
+        <!-- =============================== -->
+
+        <section class="card full">
+
+            <h2>
+                Pobreza según sexo
+            </h2>
+
+            <!-- Google Charts colocará aquí el gráfico -->
+            <div id="grafico5" class="chart"></div>
+
+        </section>
+
+    </main>
+
+
+    <!--
+        Aquí posteriormente agregaremos JavaScript.
+
+        JavaScript será el encargado de:
+        1. Cargar Google Charts.
+        2. Preparar nuestros datos.
+        3. Crear los cinco gráficos.
+        4. Mostrar cada gráfico dentro de su respectivo div.
+    -->
+
+    <script>
+    /*
+     * ==========================================================
+     * CONFIGURACIÓN DE GOOGLE CHARTS
+     * ==========================================================
+     *
+     * Cargamos la biblioteca de Google Charts y le indicamos
+     * que queremos utilizar el paquete "corechart".
+     */
+    google.charts.load('current', {
+        packages: ['corechart']
+    });
+
+    /*
+     * Una vez que Google Charts termina de cargar,
+     * ejecutamos la función dibujarGraficos().
+     */
+    google.charts.setOnLoadCallback(dibujarGraficos);
+
+
+    /*
+     * ==========================================================
+     * FUNCIÓN PRINCIPAL
+     * ==========================================================
+     *
+     * Esta función será la encargada de llamar posteriormente
+     * a los cinco gráficos del dashboard.
+     */
+    function dibujarGraficos() {
+
+        /*
+         * Por ahora solamente construiremos el primer gráfico.
+         *
+         * Los gráficos 2, 3, 4 y 5 los agregaremos
+         * posteriormente.
+         */
+        dibujarGrafico1();
+
+        dibujarGrafico2();
+
+        dibujarGrafico3();
+
+        dibujarGrafico4();
+
+        dibujarGrafico5();
+    }
+
+
+    /*
+     * ==========================================================
+     * GRÁFICO 1
+     * EVOLUCIÓN DE LA POBREZA Y POBREZA EXTREMA
+     * ==========================================================
+     */
+    function dibujarGrafico1() {
+
+        /*
+         * Creamos la estructura de datos que utilizará
+         * Google Charts.
+         *
+         * La primera columna representa el año.
+         * La segunda representa pobreza.
+         * La tercera representa pobreza extrema.
+         */
+        const datos = google.visualization.arrayToDataTable([
+
+            ['Año', 'Pobreza (%)', 'Pobreza extrema (%)'],
+
+            [2008, 44.4, 11.0],
+
+            [2018, 41.9, 7.4]
+
+        ]);
+
+
+        /*
+         * Configuración visual del gráfico.
+         */
+        const opciones = {
+
+            /*
+             * Título que aparecerá dentro del gráfico.
+             */
+            title: 'Evolución de la pobreza en México',
+
+            /*
+             * Texto que aparecerá debajo del eje horizontal.
+             */
+            hAxis: {
+                title: 'Año'
+            },
+
+            /*
+             * Texto que aparecerá junto al eje vertical.
+             */
+            vAxis: {
+                title: 'Porcentaje (%)',
+                minValue: 0
+            },
+
+            /*
+             * Permite mostrar una leyenda indicando
+             * qué representa cada línea.
+             */
+            legend: {
+                position: 'bottom'
+            },
+
+            /*
+             * Hace que el gráfico ocupe todo el espacio
+             * disponible dentro de su contenedor.
+             */
+            width: '100%',
+            height: 400
+        };
+
+
+        /*
+         * Seleccionamos el elemento HTML con id="grafico1".
+         */
+        const contenedor =
+            document.getElementById('grafico1');
+
+
+        /*
+         * Creamos un gráfico de líneas.
+         */
+        const grafico =
+            new google.visualization.LineChart(contenedor);
+
+
+        /*
+         * Finalmente dibujamos el gráfico utilizando
+         * nuestros datos y las opciones configuradas.
+         */
+        grafico.draw(datos, opciones);
+    }
+
+    /*
+ * ==========================================================
+ * GRÁFICO 2
+ * CARENCIAS SOCIALES
+ * ==========================================================
+ */
+function dibujarGrafico2() {
+
+    /*
+     * Creamos la tabla de datos que utilizará Google Charts.
+     *
+     * Primera columna:
+     * Nombre de la carencia social.
+     *
+     * Segunda columna:
+     * Porcentaje correspondiente a 2008.
+     *
+     * Tercera columna:
+     * Porcentaje correspondiente a 2018.
+     */
+    const datos = google.visualization.arrayToDataTable([
+
+        [
+            'Carencia social',
+            '2008 (%)',
+            '2018 (%)'
+        ],
+
+        ['Rezago educativo', 21.9, 16.9],
+
+        ['Acceso a servicios de salud', 38.4, 16.2],
+
+        ['Acceso a seguridad social', 65.0, 57.3],
+
+        ['Calidad y espacios de la vivienda', 17.7, 11.1],
+
+        ['Acceso a servicios básicos en la vivienda', 22.9, 19.8],
+
+        ['Acceso a la alimentación', 21.7, 20.4]
+    ]);
+
+
+    /*
+     * Configuramos la apariencia del gráfico.
+     */
+    const opciones = {
+
+        /*
+         * Título del gráfico.
+         */
+        title: 'Carencias sociales en México',
+
+        /*
+         * Texto del eje horizontal.
+         */
+        hAxis: {
+            title: 'Porcentaje (%)',
+            minValue: 0
+        },
+
+        /*
+         * Texto del eje vertical.
+         */
+        vAxis: {
+            title: 'Carencia social'
+        },
+
+        /*
+         * Colocamos la leyenda en la parte inferior.
+         */
+        legend: {
+            position: 'bottom'
+        },
+
+        /*
+         * Altura del gráfico.
+         */
+        height: 400,
+
+        /*
+         * El ancho se adapta al contenedor.
+         */
+        width: '100%'
+    };
+
+
+    /*
+     * Buscamos el espacio destinado al segundo gráfico.
+     */
+    const contenedor =
+        document.getElementById('grafico2');
+
+
+    /*
+     * Creamos un gráfico de barras horizontales.
+     */
+    const grafico =
+        new google.visualization.BarChart(contenedor);
+
+
+    /*
+     * Dibujamos el gráfico utilizando los datos
+     * y las opciones anteriores.
+     */
+    grafico.draw(datos, opciones);
+}
+
+// =====================================================
+// GRÁFICO 3: Pobreza según zona de residencia
+// Tipo: Gráfico de área
+// =====================================================
+function dibujarGrafico3() {
+
+    // Datos obtenidos de la tabla de pobreza por zona
+    const datos = google.visualization.arrayToDataTable([
+        ['Año', 'Rural (%)', 'Urbana (%)'],
+        [2008, 62.5, 38.9],
+        [2018, 55.3, 37.6]
+    ]);
+
+    // Configuración visual del gráfico
+    const opciones = {
+        title: 'Pobreza según zona de residencia',
+
+        // Configuración del eje horizontal
+        hAxis: {
+            title: 'Año'
+        },
+
+        // Configuración del eje vertical
+        vAxis: {
+            title: 'Porcentaje (%)',
+            minValue: 0
+        },
+
+        // Mantiene las áreas separadas y evita acumular los porcentajes
+        isStacked: false,
+
+        // Coloca la leyenda debajo del gráfico
+        legend: {
+            position: 'bottom'
+        },
+
+        // Tamaño del gráfico
+        width: '100%',
+        height: 400
+    };
+
+    // Creamos el gráfico de área dentro del div grafico3
+    const grafico = new google.visualization.AreaChart(
+        document.getElementById('grafico3')
+    );
+
+    // Dibujamos el gráfico
+    grafico.draw(datos, opciones);
+}
+
+// =====================================================
+// GRÁFICO 4: Pobreza según condición de lengua indígena
+// Tipo: Gráfico circular
+// =====================================================
+function dibujarGrafico4() {
+
+    // Datos de pobreza según condición de hablante
+    const datos = google.visualization.arrayToDataTable([
+        ['Condición', 'Porcentaje'],
+        ['Hablante de lengua indígena', 74.9],
+        ['No hablante de lengua indígena', 39.4]
+    ]);
+
+    // Configuración visual del gráfico
+    const opciones = {
+        title: 'Pobreza según condición de lengua indígena',
+
+        // Mostrar porcentajes dentro de las secciones
+        pieSliceText: 'percentage',
+
+        // Mostrar la leyenda a la derecha
+        legend: {
+            position: 'right'
+        },
+
+        // Tamaño del gráfico
+        width: '100%',
+        height: 400
+    };
+
+    // Creamos el gráfico circular
+    const grafico = new google.visualization.PieChart(
+        document.getElementById('grafico4')
+    );
+
+    // Dibujamos el gráfico
+    grafico.draw(datos, opciones);
+}
+
+// =====================================================
+// GRÁFICO 5: Pobreza según sexo
+// Tipo: Gráfico de columnas
+// =====================================================
+function dibujarGrafico5() {
+
+    // Datos de pobreza según sexo para 2008 y 2018
+    const datos = google.visualization.arrayToDataTable([
+        ['Sexo', '2008 (%)', '2018 (%)'],
+        ['Mujeres', 44.6, 42.4],
+        ['Hombres', 44.0, 41.4]
+    ]);
+
+    // Configuración visual del gráfico
+    const opciones = {
+        title: 'Pobreza según sexo',
+
+        // Título del eje horizontal
+        hAxis: {
+            title: 'Sexo'
+        },
+
+        // Título del eje vertical
+        vAxis: {
+            title: 'Porcentaje (%)',
+            minValue: 0
+        },
+
+        // Coloca la leyenda debajo
+        legend: {
+            position: 'bottom'
+        },
+
+        // Tamaño del gráfico
+        width: '100%',
+        height: 400
+    };
+
+    // Creamos el gráfico de columnas
+    const grafico = new google.visualization.ColumnChart(
+        document.getElementById('grafico5')
+    );
+
+    // Dibujamos el gráfico
+    grafico.draw(datos, opciones);
+}
+
+</script>
+
+</body>
+
+</html>
